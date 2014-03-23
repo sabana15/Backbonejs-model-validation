@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Backbonejs model validation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        
+        <link href="css/codiqa.ext.min.css" rel="stylesheet">
+        <link href="css/jquery.mobile-1.3.1.min.css" rel="stylesheet">
+        <link href="css/styles.css" rel="stylesheet">
+
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src="js/jquery.mobile-1.3.1.min.js"></script>
+        <script src="js/codiqa.ext.min.js"></script>
+    </head>
+    <body>
+       
+        <script type="text/template" id="logintemp">
+              <div data-role="page" data-control-title="Home" data-theme="e" id="home">
+              <div data-theme="e" data-role="header">
+                  <h3>
+                      Welcome
+                  </h3>
+              </div>
+              <div data-role="content">
+                 
+                  <form action="">
+                      <div data-role="fieldcontain" data-controltype="textinput" class="control-group username">
+                          <label for="txt_username">
+                              Username
+                          </label>
+                          <input name="txt_username" id="txt_username" placeholder="Your Username"
+                          value="" type="text"><span id="username-inline" class="error"></span>
+                      </div>
+                      <div data-role="fieldcontain" data-controltype="textinput" class="control-group password">
+                          <label for="txt_password">
+                              Password
+                          </label>
+                          <input name="txt_password" id="txt_password" placeholder="Your Password"
+                          value="" type="password"><span id="password-inline" class="error"></span>
+                      </div>
+                     <!-- <div>
+                          <a href="welcome" target="_blank" data-transition="slide">
+                              Forgot Password
+                          </a>-->
+                      </div>
+                      <input id="btn_signin" type="submit" data-theme="e" data-icon="arrow-r"
+                      data-iconpos="right" value="SignIn">
+                  </form>
+              </div>
+          </div>
+        </script>
+
+        <div id="loginContent"></div>
+
+        <script src="js/underscore.js"></script>
+        <script src="js/backbone.js"></script>
+        
+        <script>
+            var loginmodel = Backbone.Model.extend({
+                urlRoot: "/users",
+                defaults: {
+                    username: '',
+                    password: ''
+                },
+                validate: function (attrs) {
+                    var errors = [];
+
+                    if (attrs.username=='') {
+                        errors.push({name: 'username', message: 'Please enter username.'});
+                       
+                    }
+                    if (attrs.password=='') {
+                        errors.push({name: 'password', message: 'Please enter password.'});
+                       
+                    }
+                    
+                    if(errors.length > 0)
+                        return errors;
+                    else
+                        return false;
+                },
+                
+                initialize: function() {
+                   this.on("invalid", function(model, errors) {
+                        _.each(errors, function (error) {
+                            $("#"+error.name+"-inline").text(error.message);                           
+                        }, this);
+                    });
+                }
+            });
+            
+           var loginView = Backbone.View.extend({
+                el: $("#loginContent"),
+                
+                initialize: function(){
+                    this.render();
+                },
+                render: function(){
+                    var loginTemplate = _.template( $("#logintemp").html() );
+                    this.$el.html( loginTemplate );
+                    return this;
+                },
+                events: {
+                    "click #btn_signin" : "checkLogin"
+                },
+                checkLogin: function (e) {
+                    e.preventDefault();
+                   
+                     var lgmodel = {
+                        username: this.$('#txt_username').val(),
+                        password:  this.$('#txt_password').val()
+                    };
+                                        
+                    this.model.save(lgmodel);
+                                        
+                }
+            });
+            
+            var model = new loginmodel();
+            var loadLoginview = new loginView({ model: model});
+            
+   
+    
+        </script>
+    </body>
+</html>
